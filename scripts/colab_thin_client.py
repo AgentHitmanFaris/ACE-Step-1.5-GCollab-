@@ -24,6 +24,22 @@ def get_audio_filename(url):
     path = params.get('path', [''])[0]
     return os.path.basename(path)
 
+# Config persistence
+CONFIG_FILE = os.path.join(PROJECT_ROOT, ".thin_client_config.json")
+
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return {"url": "", "key": ""}
+
+def save_config(url, key):
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump({"url": url, "key": key}, f)
+
 class ColabClient:
     def __init__(self):
         self.api_url = ""
@@ -32,6 +48,7 @@ class ColabClient:
     def set_config(self, url, key):
         self.api_url = url.rstrip('/')
         self.api_key = key
+        save_config(self.api_url, self.api_key)
         try:
             resp = requests.get(f"{self.api_url}/health", timeout=5)
             if resp.status_code == 200:
@@ -108,7 +125,7 @@ def open_colab():
     return "Opening Colab in your browser... Please click 'Runtime' -> 'Run all' there."
 
 def create_ui():
-
+    cfg = load_config()
     with gr.Blocks(title="ACE-Step Colab Thin Client") as demo:
         gr.Markdown("# ACE-Step Colab Thin Client")
         gr.Markdown("Run the UI locally, generate on Google Colab.")
@@ -118,8 +135,8 @@ def create_ui():
                 open_btn = gr.Button("🚀 1. Open Colab Notebook", variant="secondary")
                 open_msg = gr.Markdown("")
             with gr.Column(scale=3):
-                colab_url = gr.Textbox(label="2. Paste Colab URL here", placeholder="https://xxxx.gradio.live")
-                api_key = gr.Textbox(label="API Key (Optional)", type="password")
+                colab_url = gr.Textbox(label="2. Paste Colab URL here", placeholder="https://xxxx.gradio.live", value=cfg["url"])
+                api_key = gr.Textbox(label="API Key (Optional)", type="password", value=cfg["key"])
                 connect_btn = gr.Button("3. Connect", variant="primary")
         
         status_msg = gr.Markdown("*Not connected*")
