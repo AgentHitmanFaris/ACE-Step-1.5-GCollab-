@@ -87,10 +87,10 @@ For Windows users, we provide a portable package with pre-installed dependencies
 
 ```bash
 # Gradio Web UI
-python_embeded\python -m acestep.entry.gradio_app
+run.bat
 
 # REST API Server
-python_embeded\python -m acestep.entry.api_server
+run_api.bat
 ```
 
 ---

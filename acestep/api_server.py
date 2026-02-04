@@ -2285,7 +2285,22 @@ def main() -> None:
         default=os.getenv("ACESTEP_API_KEY", None),
         help="API key for authentication (default from ACESTEP_API_KEY)",
     )
+
+    parser.add_argument(
+        "--skip-env-check",
+        action="store_true",
+        help="Skip environment verification (dev only)"
+    )
     args = parser.parse_args()
+
+    # Environment restriction check
+    if not args.skip_env_check:
+        try:
+            from acestep.env_utils import check_environment
+            check_environment()
+        except ImportError:
+            pass  # Fallback
+
 
     # Set API key from command line argument
     if args.api_key:

@@ -9,10 +9,20 @@ import sys
 # This allows configuration without hardcoding values
 # Falls back to .env.example if .env is not found
 try:
-    from dotenv import load_dotenv
+from dotenv import load_dotenv
+
     # Get project root directory
     _current_file = os.path.abspath(__file__)
     _project_root = os.path.dirname(os.path.dirname(_current_file))
+    
+    # Import check_environment from local module
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+    try:
+        from acestep.env_utils import check_environment
+    except ImportError:
+        def check_environment(): pass
+    
     _env_path = os.path.join(_project_root, '.env')
     _env_example_path = os.path.join(_project_root, '.env.example')
     
@@ -47,6 +57,8 @@ except ImportError:
     from acestep.dataset_handler import DatasetHandler
     from acestep.gradio_ui import create_gradio_interface
     from acestep.gpu_config import get_gpu_config, get_gpu_memory_gb, print_gpu_config_info, set_global_gpu_config
+
+
 
 
 def create_demo(init_params=None, language='en'):
@@ -146,8 +158,13 @@ def main():
     parser.add_argument("--auth-username", type=str, default=None, help="Username for Gradio authentication")
     parser.add_argument("--auth-password", type=str, default=None, help="Password for Gradio authentication")
     parser.add_argument("--api-key", type=str, default=None, help="API key for API endpoints authentication")
+    parser.add_argument("--skip-env-check", action="store_true", help="Skip environment verification (dev only)")
 
     args = parser.parse_args()
+
+    # Environment restriction check
+    if not args.skip_env_check:
+        check_environment()
 
     # Enable API requires init_service
     if args.enable_api:
