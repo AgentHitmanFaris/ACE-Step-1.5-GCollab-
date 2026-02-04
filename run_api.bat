@@ -2,18 +2,24 @@
 setlocal enabledelayedexpansion
 
 set "PROJECT_ROOT=%~dp0"
-set "PYTHON_EXE=%PROJECT_ROOT%python_embeded\python.exe"
+set "PYTHON_EXE=%PROJECT_ROOT%.venv\Scripts\python.exe"
 
 echo Checking environment...
 
 if not exist "%PYTHON_EXE%" (
-    echo [ERROR] python_embeded folder not found in:
-    echo %PROJECT_ROOT%python_embeded
-    pause
-    exit /b 1
+    set "PYTHON_EXE=%PROJECT_ROOT%python_embeded\python.exe"
+    if not exist "!PYTHON_EXE!" (
+        echo [ERROR] No valid Python environment found.
+        echo Please run 'setup_local_env.bat' or ensure 'python_embeded' exists.
+        pause
+        exit /b 1
+    )
+    echo Using python_embeded environment.
+) else (
+    echo Using local virtual environment.
 )
 
-echo Found python_embeded. Starting API Server...
+echo Starting API Server...
 echo.
 
 REM Enable API mode and auto-init service

@@ -15,12 +15,10 @@ def check_environment():
     if is_colab:
         return
 
-    # Check for python_embeded
+    # Check for python_embeded or local .venv
     executable = sys.executable.lower()
     
-    # We check if 'python_embeded' is part of the executable path
-    # This matches the user requirement "we use pythonembeded" for local execution
-    if "python_embeded" in executable:
+    if "python_embeded" in executable or ".venv" in executable:
         return
 
     # Allow bypassing via env var for developers who know what they are doing

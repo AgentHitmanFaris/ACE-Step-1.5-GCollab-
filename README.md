@@ -266,6 +266,7 @@ We provide multiple ways to use ACE-Step:
 | **REST API** | HTTP-based async API for services | [REST API](./docs/en/API.md) |
 | **Google Colab** | Run on Google Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AgentHitmanFaris/ACE-Step-1.5-GCollab-/blob/main/ACE_Step_Colab.ipynb) |
 | **Thin Client** | Local UI -> Remote Colab | `run_colab_client.bat` |
+| **Local Setup** | Setup local .venv | `setup_local_env.bat` |
 | **Remote Test** | Test via Colab API | `python scripts/test_colab_api.py <colab_url>` |
 
 **Documentation available in:** [English](./docs/en/) | [中文](./docs/zh/) | [日本語](./docs/ja/)
