@@ -179,7 +179,7 @@ uv add --dev package-name
 uv sync --upgrade
 ```
 
-## 📥 Model Download
+## Model Download
 
 Models are automatically downloaded from [HuggingFace]https://huggingface.co/ACE-Step/Ace-Step1.5) or [ModelScope](https://modelscope.cn/organization/ACE-Step) on first run. You can also manually download models using the CLI or `huggingface-cli`.
 
@@ -241,7 +241,7 @@ huggingface-cli download ACE-Step/acestep-v15-turbo-continuous --local-dir ./che
 | acestep-v15-turbo-shift3 | [ACE-Step/acestep-v15-turbo-shift3](https://huggingface.co/ACE-Step/acestep-v15-turbo-shift3) | Turbo DiT with shift3 |
 | acestep-v15-turbo-continuous | [ACE-Step/acestep-v15-turbo-continuous](https://huggingface.co/ACE-Step/acestep-v15-turbo-continuous) | Turbo DiT with continuous shift (1-5) |
 
-### 💡 Which Model Should I Choose?
+### Which Model Should I Choose?
 
 ACE-Step automatically adapts to your GPU's VRAM. Here's a quick guide:
 
@@ -252,24 +252,25 @@ ACE-Step automatically adapts to your GPU's VRAM. Here's a quick guide:
 | **12-16GB** | `acestep-5Hz-lm-1.7B` | Better quality |
 | **≥16GB** | `acestep-5Hz-lm-4B` | Best quality and audio understanding |
 
-> 📖 **For detailed GPU compatibility information** (duration limits, batch sizes, memory optimization), see GPU Compatibility Guide: [English](./docs/en/GPU_COMPATIBILITY.md) | [中文](./docs/zh/GPU_COMPATIBILITY.md) | [日本語](./docs/ja/GPU_COMPATIBILITY.md)
+> **For detailed GPU compatibility information** (duration limits, batch sizes, memory optimization), see GPU Compatibility Guide: [English](./docs/en/GPU_COMPATIBILITY.md) | [中文](./docs/zh/GPU_COMPATIBILITY.md) | [日本語](./docs/ja/GPU_COMPATIBILITY.md)
 
 
-## 🚀 Usage
+## Usage
 
 We provide multiple ways to use ACE-Step:
 
 | Method | Description | Documentation |
 |--------|-------------|---------------|
-| 🖥️ **Gradio Web UI** | Interactive web interface for music generation | [Gradio Guide](./docs/en/GRADIO_GUIDE.md) |
-| 🐍 **Python API** | Programmatic access for integration | [Inference API](./docs/en/INFERENCE.md) |
-| 🌐 **REST API** | HTTP-based async API for services | [REST API](./docs/en/API.md) |\n| ☁️ **Google Colab** | Run on Google Colab | [ACE_Step_Colab.ipynb](./ACE_Step_Colab.ipynb) |
+| **Gradio Web UI** | Interactive web interface for music generation | [Gradio Guide](./docs/en/GRADIO_GUIDE.md) |
+| **Python API** | Programmatic access for integration | [Inference API](./docs/en/INFERENCE.md) |
+| **REST API** | HTTP-based async API for services | [REST API](./docs/en/API.md) |
+| **Google Colab** | Run on Google Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ace-step/ACE-Step-1.5/blob/main/ACE_Step_Colab.ipynb) |
 
-**📚 Documentation available in:** [English](./docs/en/) | [中文](./docs/zh/) | [日本語](./docs/ja/)
+**Documentation available in:** [English](./docs/en/) | [中文](./docs/zh/) | [日本語](./docs/ja/)
 
-## 📖 Tutorial
+## Tutorial
 
-**🎯 Must Read:** Comprehensive guide to ACE-Step 1.5's design philosophy and usage methods.
+**Must Read:** Comprehensive guide to ACE-Step 1.5's design philosophy and usage methods.
 
 | Language | Link |
 |----------|------|
@@ -284,17 +285,17 @@ This tutorial covers:
 - Inference hyperparameters
 - Random factors and optimization strategies
 
-## 🔨 Train
+## Train
 
 See the **LoRA Training** tab in Gradio UI for one-click training, or check [Gradio Guide - LoRA Training](./docs/en/GRADIO_GUIDE.md#lora-training) for details.
 
-## 🏗️ Architecture
+## Architecture
 
 <p align="center">
     <img src="./assets/ACE-Step_framework.png" width="100%" alt="ACE-Step Framework">
 </p>
 
-## 🦁 Model Zoo
+## Model Zoo
 
 <p align="center">
     <img src="./assets/model_zoo.png" width="100%" alt="Model Zoo">
@@ -317,25 +318,25 @@ See the **LoRA Training** tab in Gradio UI for one-click training, or check [Gra
 | `acestep-5Hz-lm-1.7B` | Qwen3-1.7B | ✅ | ✅ | ✅ | ✅ | ✅ | Medium | Medium | Medium | ✅ |
 | `acestep-5Hz-lm-4B` | Qwen3-4B | ✅ | ✅ | ✅ | ✅ | ✅ | Strong | Strong | Strong | ✅ |
 
-## 📜 License & Disclaimer
+## License & Disclaimer
 
 This project is licensed under [MIT](./LICENSE)
 
 ACE-Step enables original music generation across diverse genres, with applications in creative production, education, and entertainment. While designed to support positive and artistic use cases, we acknowledge potential risks such as unintentional copyright infringement due to stylistic similarity, inappropriate blending of cultural elements, and misuse for generating harmful content. To ensure responsible use, we encourage users to verify the originality of generated works, clearly disclose AI involvement, and obtain appropriate permissions when adapting protected styles or materials. By using ACE-Step, you agree to uphold these principles and respect artistic integrity, cultural diversity, and legal compliance. The authors are not responsible for any misuse of the model, including but not limited to copyright violations, cultural insensitivity, or the generation of harmful content.
 
-🔔 Important Notice  
+Important Notice
 The only official website for the ACE-Step project is our GitHub Pages site.    
  We do not operate any other websites.  
-🚫 Fake domains include but are not limited to:
+Fake domains include but are not limited to:
 ac\*\*p.com, a\*\*p.org, a\*\*\*c.org  
-⚠️ Please be cautious. Do not visit, trust, or make payments on any of those sites.
+Please be cautious. Do not visit, trust, or make payments on any of those sites.
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 This project is co-led by ACE Studio and StepFun.
 
 
-## 📖 Citation
+## Citation
 
 If you find this project useful for your research, please consider citing:
 
