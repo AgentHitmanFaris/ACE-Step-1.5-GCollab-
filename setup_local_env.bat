@@ -14,13 +14,9 @@ cd /d "%PROJECT_ROOT%"
 REM 1. Download UV if not present
 if not exist "%UV_EXE%" (
     echo [1/3] Downloading uv...
-    powershell -Command "Invoke-WebRequest -Uri 'https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-pc-windows-msvc.zip' -OutFile 'uv.zip'"
-    powershell -Command "Expand-Archive -Path 'uv.zip' -DestinationPath 'uv_temp' -Force"
-    move /y "uv_temp\uv-x86_64-pc-windows-msvc\uv.exe" "%PROJECT_ROOT%" >nul
-    rmdir /s /q "uv_temp"
-    del "uv.zip"
+    powershell -Command "$ErrorActionPreference = 'Stop'; Invoke-WebRequest -Uri 'https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-pc-windows-msvc.zip' -OutFile 'uv.zip'; Expand-Archive -Path 'uv.zip' -DestinationPath 'uv_temp' -Force; Get-ChildItem -Path 'uv_temp' -Filter 'uv.exe' -Recurse | Copy-Item -Destination '.'; Remove-Item -Path 'uv_temp' -Recurse -Force; Remove-Item -Path 'uv.zip' -Force"
     if not exist "%UV_EXE%" (
-        echo [ERROR] Failed to download uv.exe
+        echo [ERROR] Failed to download or extract uv.exe
         pause
         exit /b 1
     )
