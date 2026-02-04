@@ -116,7 +116,9 @@ def main():
     
     parser = argparse.ArgumentParser(description="Gradio Demo for ACE-Step V1.5")
     parser.add_argument("--port", type=int, default=7860, help="Port to run the gradio server on")
-    parser.add_argument("--share", action="store_true", help="Create a public link")
+    parser.add_argument("--share", dest="share", action="store_true", help="Create a public link (default)")
+    parser.add_argument("--no-share", dest="share", action="store_false", help="Disable public link")
+    parser.set_defaults(share=True)
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     parser.add_argument("--server-name", type=str, default="127.0.0.1", help="Server name (default: 127.0.0.1, use 0.0.0.0 for all interfaces)")
     parser.add_argument("--language", type=str, default="en", choices=["en", "zh", "ja"], help="UI language: en (English), zh (中文), ja (日本語)")

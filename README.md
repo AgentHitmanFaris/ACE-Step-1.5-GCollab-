@@ -263,7 +263,7 @@ We provide multiple ways to use ACE-Step:
 |--------|-------------|---------------|
 | 🖥️ **Gradio Web UI** | Interactive web interface for music generation | [Gradio Guide](./docs/en/GRADIO_GUIDE.md) |
 | 🐍 **Python API** | Programmatic access for integration | [Inference API](./docs/en/INFERENCE.md) |
-| 🌐 **REST API** | HTTP-based async API for services | [REST API](./docs/en/API.md) |
+| 🌐 **REST API** | HTTP-based async API for services | [REST API](./docs/en/API.md) |\n| ☁️ **Google Colab** | Run on Google Colab | [ACE_Step_Colab.ipynb](./ACE_Step_Colab.ipynb) |
 
 **📚 Documentation available in:** [English](./docs/en/) | [中文](./docs/zh/) | [日本語](./docs/ja/)
 
