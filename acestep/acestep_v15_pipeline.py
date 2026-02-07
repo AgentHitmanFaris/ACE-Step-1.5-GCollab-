@@ -9,7 +9,7 @@ import sys
 # This allows configuration without hardcoding values
 # Falls back to .env.example if .env is not found
 try:
-from dotenv import load_dotenv
+    from dotenv import load_dotenv
 
     # Get project root directory
     _current_file = os.path.abspath(__file__)
