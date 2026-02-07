@@ -25,6 +25,7 @@ import time
 import traceback
 import tempfile
 import urllib.parse
+import aiofiles
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -811,12 +812,12 @@ async def _save_upload_to_temp(upload: StarletteUploadFile, *, prefix: str) -> s
     fd, path = tempfile.mkstemp(prefix=f"{prefix}_", suffix=suffix)
     os.close(fd)
     try:
-        with open(path, "wb") as f:
+        async with aiofiles.open(path, "wb") as f:
             while True:
                 chunk = await upload.read(1024 * 1024)
                 if not chunk:
                     break
-                f.write(chunk)
+                await f.write(chunk)
     except Exception:
         try:
             os.remove(path)
