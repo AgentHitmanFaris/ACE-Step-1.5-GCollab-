@@ -22,6 +22,7 @@ import os
 import sys
 import time
 import traceback
+import aiofiles
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
@@ -325,7 +326,25 @@ def _read_audio_as_base64(file_path: str) -> str:
         return base64.b64encode(f.read()).decode("utf-8")
 
 
-def _audio_to_base64_url(audio_path: str, audio_format: str = "mp3") -> str:
+async def _chunked_base64_encode(data: bytes, chunk_size: int = 1024 * 1024) -> str:
+    """Async base64 encode large data in chunks to avoid blocking event loop."""
+    # Adjust chunk_size to be multiple of 3 to avoid padding issues in middle
+    chunk_size = (chunk_size // 3) * 3
+    parts = []
+
+    # If data is small, just do it directly
+    if len(data) < chunk_size:
+        return base64.b64encode(data).decode("utf-8")
+
+    for i in range(0, len(data), chunk_size):
+        chunk = data[i : i + chunk_size]
+        part = base64.b64encode(chunk).decode("utf-8")
+        parts.append(part)
+        await asyncio.sleep(0)  # Yield control
+    return "".join(parts)
+
+
+async def _audio_to_base64_url(audio_path: str, audio_format: str = "mp3") -> str:
     """Convert audio file to base64 data URL (OpenRouter format)."""
     if not audio_path or not os.path.exists(audio_path):
         return ""
@@ -340,10 +359,10 @@ def _audio_to_base64_url(audio_path: str, audio_format: str = "mp3") -> str:
     }
     mime_type = mime_types.get(audio_format.lower(), "audio/mpeg")
 
-    with open(audio_path, "rb") as f:
-        audio_data = f.read()
+    async with aiofiles.open(audio_path, "rb") as f:
+        audio_data = await f.read()
 
-    b64_data = base64.b64encode(audio_data).decode("utf-8")
+    b64_data = await _chunked_base64_encode(audio_data)
     return f"data:{mime_type};base64,{b64_data}"
 
 
@@ -861,7 +880,7 @@ def create_app() -> FastAPI:
                 # Send audio data
                 audio_path = audio_result.get("audio_path")
                 if audio_path and os.path.exists(audio_path):
-                    b64_url = _audio_to_base64_url(audio_path, "mp3")
+                    b64_url = await _audio_to_base64_url(audio_path, "mp3")
                     if b64_url:
                         audio_list = [
                             AudioOutputItem(
@@ -918,7 +937,7 @@ def create_app() -> FastAPI:
         audio_list = None
         audio_path = result.get("audio_path")
         if audio_path and os.path.exists(audio_path):
-            b64_url = _audio_to_base64_url(audio_path, "mp3")
+            b64_url = await _audio_to_base64_url(audio_path, "mp3")
             if b64_url:
                 audio_list = [
                     AudioOutputItem(
