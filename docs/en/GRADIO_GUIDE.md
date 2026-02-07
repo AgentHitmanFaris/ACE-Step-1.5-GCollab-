@@ -110,7 +110,7 @@ Simple mode is designed for quick, natural language-based music generation.
 - "melancholic indie folk with acoustic guitar"
 - "jazz trio playing in a smoky bar"
 
-**Random Sample:** Click the 🎲 button to load a random example description.
+**Random Sample:** Click the Random button to load a random example description.
 
 ### Custom Mode
 
@@ -227,7 +227,7 @@ The text description of the desired music. Be specific about:
 
 **Example:** "upbeat pop rock with electric guitars, driving drums, and catchy synth hooks"
 
-Click 🎲 to load a random example caption.
+Click the random button to load a random example caption.
 
 ### Lyrics
 
@@ -273,7 +273,7 @@ This is where I belong
 | **Inference Steps** | 8 | Denoising steps. Turbo: 1-20, Base: 1-200 |
 | **Guidance Scale** | 7.0 | CFG strength (base model only). Higher = follows prompt more |
 | **Seed** | -1 | Random seed. Use comma-separated values for batches |
-| **Random Seed** | ✓ | When checked, generates random seeds |
+| **Random Seed** | Checked | When checked, generates random seeds |
 | **Audio Format** | mp3 | Output format: mp3, flac |
 | **Shift** | 3.0 | Timestep shift factor (1.0-5.0). Recommended 3.0 for turbo |
 | **Inference Method** | ode | ode (Euler, faster) or sde (stochastic) |
@@ -283,7 +283,7 @@ This is where I belong
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| **Use ADG** | ✗ | Enable Adaptive Dual Guidance for better quality |
+| **Use ADG** | Unchecked | Enable Adaptive Dual Guidance for better quality |
 | **CFG Interval Start** | 0.0 | When to start applying CFG (0.0-1.0) |
 | **CFG Interval End** | 1.0 | When to stop applying CFG (0.0-1.0) |
 
@@ -301,17 +301,17 @@ This is where I belong
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| **CoT Metas** | ✓ | Generate metadata via LM reasoning |
-| **CoT Language** | ✓ | Detect vocal language via LM |
-| **Constrained Decoding Debug** | ✗ | Enable debug logging |
+| **CoT Metas** | Checked | Generate metadata via LM reasoning |
+| **CoT Language** | Checked | Detect vocal language via LM |
+| **Constrained Decoding Debug** | Unchecked | Enable debug logging |
 
 ### Generation Options
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | **LM Codes Strength** | 1.0 | How strongly LM codes influence generation (0.0-1.0) |
-| **Auto Score** | ✗ | Automatically calculate quality scores |
-| **Auto LRC** | ✗ | Automatically generate lyrics timestamps |
+| **Auto Score** | Unchecked | Automatically calculate quality scores |
+| **Auto LRC** | Unchecked | Automatically generate lyrics timestamps |
 | **LM Batch Chunk Size** | 8 | Max items per LM batch (GPU memory) |
 
 ### Main Generation Controls

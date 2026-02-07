@@ -116,7 +116,7 @@ This means: **You need to learn to guide this elephant, not expect it to automat
 
 Now you understand the "elephant" metaphor. But actually—
 
-**This isn't one elephant, but an entire herd—elephants large and small, forming a family.** 🐘🐘🐘🐘
+**This isn't one elephant, but an entire herd—elephants large and small, forming a family.**
 
 ### Architecture Principles: Two Brains
 
@@ -172,10 +172,10 @@ Their training data is completely identical; the difference is purely in **knowl
 
 | Choice | Speed | World Knowledge | Memory | Use Cases |
 |--------|:-----:|:---------------:|:------:|-----------|
-| No LM | ⚡⚡⚡⚡ | — | — | You do the planning (e.g., Cover mode) |
-| `0.6B` | ⚡⚡⚡ | Basic | Weak | Low VRAM (< 8GB), rapid prototyping |
-| `1.7B` | ⚡⚡ | Medium | Medium | **Default recommendation** |
-| `4B` | ⚡ | Rich | Strong | Complex tasks, high-quality generation |
+| No LM | Fastest | — | — | You do the planning (e.g., Cover mode) |
+| `0.6B` | Fast | Basic | Weak | Low VRAM (< 8GB), rapid prototyping |
+| `1.7B` | Medium | Medium | Medium | **Default recommendation** |
+| `4B` | Slow | Rich | Strong | Complex tasks, high-quality generation |
 
 **How to choose?**
 
@@ -254,9 +254,9 @@ This greatly expands **customization and playability**—train a model unique to
 
 | Model | Steps | CFG | Speed | Exclusive Tasks | Recommended Scenarios |
 |-------|:-----:|:---:|:-----:|-----------------|----------------------|
-| `turbo` (default) | 8 | ❌ | ⚡⚡⚡ | — | Daily use, rapid iteration |
-| `sft` | 50 | ✅ | ⚡ | — | Pursuing details, like tuning |
-| `base` | 50 | ✅ | ⚡ | extract, lego, complete | Special tasks, large-scale fine-tuning |
+| `turbo` (default) | 8 | No | Very Fast | — | Daily use, rapid iteration |
+| `sft` | 50 | Yes | Fast | — | Pursuing details, like tuning |
+| `base` | 50 | Yes | Fast | extract, lego, complete | Special tasks, large-scale fine-tuning |
 
 ### Combination Strategies
 
@@ -428,13 +428,13 @@ Whisper those words softly
 
 This works better than writing `[Chorus]` alone—you're telling the model both what this section is (Chorus) and how to sing it (anthemic).
 
-**⚠️ Note: Don't stack too many tags.**
+**Note: Don't stack too many tags.**
 
 ```
-❌ Not recommended:
+Not recommended:
 [Chorus - anthemic - stacked harmonies - high energy - powerful - epic]
 
-✅ Recommended:
+Recommended:
 [Chorus - anthemic]
 ```
 
@@ -444,16 +444,16 @@ Stacking too many tags has two risks:
 
 **Principle**: Keep structure tags concise; put complex style descriptions in Caption.
 
-**⚠️ Key: Maintain Consistency Between Caption and Lyrics**
+**Key: Maintain Consistency Between Caption and Lyrics**
 
 **Models are not good at resolving conflicts.** If descriptions in Caption and Lyrics contradict, the model gets confused and output quality decreases.
 
 ```
-❌ Conflict example:
+Conflict example:
 Caption: "violin solo, classical, intimate chamber music"
 Lyrics: [Guitar Solo - electric - distorted]
 
-✅ Consistent example:
+Consistent example:
 Caption: "violin solo, classical, intimate chamber music"
 Lyrics: [Violin Solo - expressive]
 ```
@@ -498,11 +498,11 @@ Think of Caption as "overall setting" and Lyrics as "shot script"—they should 
 **6-10 syllables per line** usually works best. The model aligns syllables to beats—if one line has 6 syllables and the next has 14, rhythm becomes strange.
 
 ```
-❌ Bad example:
+Bad example:
 我站在窗前看着外面的世界一切都在改变（18 syllables）
 你好（2 syllables）
 
-✅ Good example:
+Good example:
 我站在窗前（5 syllables）
 看着外面世界（6 syllables）
 一切都在改变（6 syllables）
@@ -560,7 +560,7 @@ Chorus continues
 
 These characteristics make lyrics seem mechanical and lack human touch:
 
-| Red Flag 🚩 | Description |
+| Red Flag | Description |
 |-------------|-------------|
 | **Adjective stacking** | "neon skies, electric hearts, endless dreams"—filling a section with vague imagery |
 | **Rhyme chaos** | Inconsistent rhyme patterns, or forced rhymes causing semantic breaks |
