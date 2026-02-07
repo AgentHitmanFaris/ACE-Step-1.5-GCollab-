@@ -122,6 +122,11 @@ class AceStepHandler:
         """Check if flash attention is available on the system"""
         try:
             import flash_attn
+            if not torch.cuda.is_available():
+                return False
+            capability = torch.cuda.get_device_capability()
+            if capability[0] < 8:
+                return False
             return True
         except ImportError:
             return False
