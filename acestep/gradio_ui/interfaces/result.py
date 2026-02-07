@@ -4,6 +4,20 @@ Contains results display section component definitions
 """
 import gradio as gr
 from acestep.gradio_ui.i18n import t
+import inspect
+
+def get_audio_kwargs():
+    sig = inspect.signature(gr.Audio.__init__)
+    if 'buttons' in sig.parameters:
+        return {"buttons": []}
+    return {"show_download_button": False, "show_share_button": False}
+
+def get_textbox_kwargs():
+    sig = inspect.signature(gr.Textbox.__init__)
+    if 'buttons' in sig.parameters:
+        return {"buttons": ["copy"]}
+    return {"show_copy_button": True}
+
 
 
 def create_results_section(dit_handler) -> dict:
@@ -29,7 +43,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=1),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_1 = gr.Button(
@@ -60,7 +74,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_1 = gr.Textbox(
                         label=t("results.codes_label", n=1),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -68,7 +82,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_1 = gr.Textbox(
                         label=t("results.quality_score_label", n=1),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -76,7 +90,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_1 = gr.Textbox(
                         label=t("results.lrc_label", n=1),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -86,7 +100,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=2),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_2 = gr.Button(
@@ -117,7 +131,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_2 = gr.Textbox(
                         label=t("results.codes_label", n=2),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -125,7 +139,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_2 = gr.Textbox(
                         label=t("results.quality_score_label", n=2),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -133,7 +147,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_2 = gr.Textbox(
                         label=t("results.lrc_label", n=2),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -143,7 +157,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=3),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_3 = gr.Button(
@@ -174,7 +188,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_3 = gr.Textbox(
                         label=t("results.codes_label", n=3),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -182,7 +196,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_3 = gr.Textbox(
                         label=t("results.quality_score_label", n=3),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -190,7 +204,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_3 = gr.Textbox(
                         label=t("results.lrc_label", n=3),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -200,7 +214,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=4),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_4 = gr.Button(
@@ -231,7 +245,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_4 = gr.Textbox(
                         label=t("results.codes_label", n=4),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -239,7 +253,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_4 = gr.Textbox(
                         label=t("results.quality_score_label", n=4),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -247,7 +261,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_4 = gr.Textbox(
                         label=t("results.lrc_label", n=4),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -260,7 +274,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=5),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_5 = gr.Button(t("results.send_to_src_btn"), variant="secondary", size="sm", scale=1)
@@ -271,7 +285,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_5 = gr.Textbox(
                         label=t("results.codes_label", n=5),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -279,7 +293,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_5 = gr.Textbox(
                         label=t("results.quality_score_label", n=5),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -287,7 +301,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_5 = gr.Textbox(
                         label=t("results.lrc_label", n=5),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -297,7 +311,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=6),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_6 = gr.Button(t("results.send_to_src_btn"), variant="secondary", size="sm", scale=1)
@@ -308,7 +322,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_6 = gr.Textbox(
                         label=t("results.codes_label", n=6),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -316,7 +330,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_6 = gr.Textbox(
                         label=t("results.quality_score_label", n=6),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -324,7 +338,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_6 = gr.Textbox(
                         label=t("results.lrc_label", n=6),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -334,7 +348,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=7),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_7 = gr.Button(t("results.send_to_src_btn"), variant="secondary", size="sm", scale=1)
@@ -345,7 +359,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_7 = gr.Textbox(
                         label=t("results.codes_label", n=7),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -353,7 +367,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_7 = gr.Textbox(
                         label=t("results.quality_score_label", n=7),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -361,7 +375,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_7 = gr.Textbox(
                         label=t("results.lrc_label", n=7),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
@@ -371,7 +385,7 @@ def create_results_section(dit_handler) -> dict:
                     label=t("results.generated_music", n=8),
                     type="filepath",
                     interactive=False,
-                    buttons=[]
+                    **get_audio_kwargs()
                 )
                 with gr.Row(equal_height=True):
                     send_to_src_btn_8 = gr.Button(t("results.send_to_src_btn"), variant="secondary", size="sm", scale=1)
@@ -382,7 +396,7 @@ def create_results_section(dit_handler) -> dict:
                     codes_display_8 = gr.Textbox(
                         label=t("results.codes_label", n=8),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=4,
                         max_lines=4,
                         visible=True
@@ -390,7 +404,7 @@ def create_results_section(dit_handler) -> dict:
                     score_display_8 = gr.Textbox(
                         label=t("results.quality_score_label", n=8),
                         interactive=False,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=6,
                         max_lines=6,
                         visible=True
@@ -398,7 +412,7 @@ def create_results_section(dit_handler) -> dict:
                     lrc_display_8 = gr.Textbox(
                         label=t("results.lrc_label", n=8),
                         interactive=True,
-                        buttons=["copy"],
+                        **get_textbox_kwargs(),
                         lines=8,
                         max_lines=8,
                         visible=True
