@@ -963,9 +963,11 @@ def create_app() -> FastAPI:
         async def _cleanup_job_temp_files(job_id: str) -> None:
             async with app.state.job_temp_files_lock:
                 paths = app.state.job_temp_files.pop(job_id, [])
+
+            loop = asyncio.get_running_loop()
             for p in paths:
                 try:
-                    os.remove(p)
+                    await loop.run_in_executor(None, os.remove, p)
                 except Exception:
                     pass
 
