@@ -488,6 +488,16 @@ class MetadataConstrainedLogitsProcessor(LogitsProcessor):
         # EOS token for duration-constrained codes generation
         self.eos_token_id = self.tokenizer.eos_token_id
         
+        # Detect additional stop tokens (e.g., <|im_end|>, <|endoftext|>)
+        self.additional_stop_token_ids = []
+        for token in ["<|im_end|>", "<|endoftext|>"]:
+            ids = self.tokenizer.encode(token, add_special_tokens=False)
+            if ids:
+                self.additional_stop_token_ids.append(ids[-1])
+        if self.additional_stop_token_ids:
+            if self.debug:
+                logger.debug(f"Registered additional stop token IDs: {self.additional_stop_token_ids}")
+
         # Period token for caption field transition logic
         period_tokens = self.tokenizer.encode(".", add_special_tokens=False)
         self.period_token = period_tokens[-1] if period_tokens else None
@@ -574,6 +584,12 @@ class MetadataConstrainedLogitsProcessor(LogitsProcessor):
         if self.eos_token_id is not None:
             inverse_mask[0, self.eos_token_id] = 0
         
+        # Also allow additional stop tokens (will be aliased to EOS token in __call__)
+        if hasattr(self, 'additional_stop_token_ids') and self.additional_stop_token_ids:
+            for stop_id in self.additional_stop_token_ids:
+                if stop_id < self.vocab_size:
+                    inverse_mask[0, stop_id] = 0
+
         self.non_audio_code_mask = inverse_mask
         
         if self.debug:
@@ -1548,6 +1564,34 @@ class MetadataConstrainedLogitsProcessor(LogitsProcessor):
                     self.non_audio_code_mask = self.non_audio_code_mask.to(device=scores.device, dtype=scores.dtype)
                 scores = scores + self.non_audio_code_mask
             
+            # Alias additional stop tokens to EOS token (if not blocked by duration constraint)
+            # This ensures that if model generates <|im_end|>, we map it to EOS so vllm stops
+            if self.eos_token_id is not None and self.additional_stop_token_ids:
+                # Only alias if EOS is NOT blocked
+                eos_blocked = (scores[0, self.eos_token_id] == float('-inf'))
+
+                if not eos_blocked:
+                    # For each sequence in batch
+                    for b in range(scores.shape[0]):
+                        # Find max score among additional stop tokens for this sequence
+                        max_stop_score = float('-inf')
+                        found_valid_stop = False
+                        for stop_id in self.additional_stop_token_ids:
+                            if stop_id < scores.shape[1]:
+                                stop_score = scores[b, stop_id].item()
+                                if stop_score > float('-inf'):
+                                    max_stop_score = max(max_stop_score, stop_score)
+                                    found_valid_stop = True
+                                # Mask the additional stop token (so it's not sampled directly)
+                                scores[b, stop_id] = float('-inf')
+
+                        # If we found a valid stop token score that is higher than current EOS score,
+                        # boost EOS score to match it. This makes EOS token the likely sample.
+                        if found_valid_stop:
+                            current_eos_score = scores[b, self.eos_token_id].item()
+                            if max_stop_score > current_eos_score:
+                                scores[b, self.eos_token_id] = max_stop_score
+
             # Apply duration constraint in codes generation phase
             if self.target_codes is not None and self.eos_token_id is not None:
                 if self.codes_count < self.target_codes:
