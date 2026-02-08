@@ -2002,7 +2002,7 @@ class LLMHandler:
             )
             return output_text, f"✅ Generated successfully (pt) | length={len(output_text)}"
 
-        except Exception as e:
+        except BaseException as e:
             # Reset nano-vllm state on error to prevent stale context from causing
             # subsequent CUDA illegal memory access errors
             if self.llm_backend == "vllm":
@@ -2022,7 +2022,12 @@ class LLMHandler:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
                 torch.cuda.synchronize()
-            return "", f"❌ Error generating from formatted prompt: {e}"
+
+            if isinstance(e, Exception):
+                return "", f"❌ Error generating from formatted prompt: {e}"
+            else:
+                # Re-raise critical exceptions like KeyboardInterrupt
+                raise e
     
     def _generate_with_constrained_decoding(
         self,
