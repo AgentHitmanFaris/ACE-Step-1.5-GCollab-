@@ -1517,6 +1517,11 @@ class MetadataConstrainedLogitsProcessor(LogitsProcessor):
             return self._apply_temperature_scaling(scores)
         
         if self.state == FSMState.COMPLETED:
+            # If we just completed reasoning and want to stop, force EOS
+            if self.stop_at_reasoning and self.eos_token_id is not None:
+                self._apply_whitelist_inplace(scores, [self.eos_token_id])
+                return self._apply_temperature_scaling(scores)
+
             # In understanding phase, block audio codes during lyrics generation (COMPLETED state)
             if self.generation_phase == "understand" and self.audio_code_mask is not None:
                 # Move mask to same device/dtype as scores if needed
@@ -1691,33 +1696,10 @@ class MetadataConstrainedLogitsProcessor(LogitsProcessor):
             allowed = self._get_allowed_tokens_for_fixed_string(fixed_str)
             
             if allowed:
-                # Check if we should stop at reasoning (after </think> tag)
-                # This happens when we're about to complete the </think> tag
-                if self.state == FSMState.THINK_END_TAG and self.stop_at_reasoning:
-                    # Check if the next token would complete the fixed string
-                    remaining_chars = len(fixed_str) - self.position_in_state
-                    # If remaining is small (<= 10 chars, which is typically 1-2 tokens), force EOS
-                    if remaining_chars <= 10:
-                        # Force EOS token to stop generation
-                        if self.eos_token_id is not None:
-                            self._apply_whitelist_inplace(scores, [self.eos_token_id])
-                            if self.debug:
-                                logger.debug(f"stop_at_reasoning=True: forcing EOS near end of </think> tag (remaining: {remaining_chars} chars)")
-                            return scores
-                
                 # Apply whitelist constraint inplace
                 self._apply_whitelist_inplace(scores, allowed)
             else:
                 # Position exceeds string, move to next state
-                # If stop_at_reasoning is True and we're transitioning from THINK_END_TAG,
-                # force EOS before transitioning
-                if self.state == FSMState.THINK_END_TAG and self.stop_at_reasoning:
-                    # Force EOS token to stop generation
-                    if self.eos_token_id is not None:
-                        self._apply_whitelist_inplace(scores, [self.eos_token_id])
-                        if self.debug:
-                            logger.debug(f"stop_at_reasoning=True: forcing EOS after completing </think> tag")
-                        return scores
                 
                 old_state = self.state
                 self._transition_to_next_state()
