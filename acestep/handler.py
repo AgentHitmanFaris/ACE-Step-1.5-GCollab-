@@ -3,6 +3,7 @@ Business Logic Handler
 Encapsulates all data processing and business logic as a bridge between model and UI
 """
 import os
+import gc
 
 # Disable tokenizers parallelism to avoid fork warning
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -677,6 +678,11 @@ class AceStepHandler:
 
         # Load to GPU
         logger.info(f"[_load_model_context] Loading {model_name} to {self.device}")
+
+        # Clear memory before loading to maximize available VRAM
+        gc.collect()
+        torch.cuda.empty_cache()
+
         start_time = time.time()
         if model_name == "vae":
             vae_dtype = self._get_vae_dtype()
@@ -703,6 +709,7 @@ class AceStepHandler:
             # silence_latent is used in many places outside of model context,
             # so it should stay on GPU to avoid device mismatch errors.
             
+            gc.collect()
             torch.cuda.empty_cache()
             offload_time = time.time() - start_time
             self.current_offload_cost += offload_time
