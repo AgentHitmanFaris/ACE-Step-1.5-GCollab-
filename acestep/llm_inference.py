@@ -35,6 +35,7 @@ class LLMHandler:
         """Initialize LLMHandler with default values"""
         self.llm = None
         self.llm_tokenizer = None
+        self.additional_stop_token_ids = []
         self.llm_initialized = False
         self.llm_backend = None
         self.max_model_len = 4096
@@ -268,6 +269,13 @@ class LLMHandler:
         if pad_token_id is not None and pad_token_id != eos_token_id:
             if torch.any(tokens == pad_token_id):
                 return True
+
+        # Check additional stop tokens (e.g., <|im_end|>)
+        if self.additional_stop_token_ids:
+            for stop_id in self.additional_stop_token_ids:
+                if torch.any(tokens == stop_id):
+                    return True
+
         return False
     
     def _update_constrained_processor_state(self, constrained_processor: Optional[MetadataConstrainedLogitsProcessor], tokens: torch.Tensor):
@@ -359,6 +367,15 @@ class LLMHandler:
             logger.info(f"5Hz LM tokenizer loaded successfully in {time.time() - start_time:.2f} seconds")
             self.llm_tokenizer = llm_tokenizer
             
+            # Detect and store additional stop tokens
+            self.additional_stop_token_ids = []
+            for token in ["<|im_end|>", "<|endoftext|>"]:
+                ids = self.llm_tokenizer.encode(token, add_special_tokens=False)
+                if ids:
+                    self.additional_stop_token_ids.append(ids[-1])
+            if self.additional_stop_token_ids:
+                logger.info(f"Registered additional stop token IDs: {self.additional_stop_token_ids}")
+
             # Initialize shared constrained decoding processor (one-time initialization)
             # Use GPU-based max_duration to limit duration values in constrained decoding
             logger.info("Initializing constrained decoding processor...")
@@ -2363,8 +2380,8 @@ class LLMHandler:
         # Load to GPU
         logger.info(f"Loading LLM to {self.device}")
         start_time = time.time()
-        if hasattr(model, "to"):
-            model.to(self.device).to(self.dtype)
+        if hasattr(self.llm, "to"):
+            self.llm.to(self.device).to(self.dtype)
         load_time = time.time() - start_time
         logger.info(f"Loaded LLM to {self.device} in {load_time:.4f}s")
 
@@ -2374,8 +2391,8 @@ class LLMHandler:
             # Offload to CPU
             logger.info(f"Offloading LLM to CPU")
             start_time = time.time()
-            if hasattr(model, "to"):
-                model.to("cpu")
+            if hasattr(self.llm, "to"):
+                self.llm.to("cpu")
             torch.cuda.empty_cache()
             offload_time = time.time() - start_time
             logger.info(f"Offloaded LLM to CPU in {offload_time:.4f}s")
