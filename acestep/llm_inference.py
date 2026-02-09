@@ -6,6 +6,7 @@ import os
 import traceback
 import time
 import random
+import gc
 from typing import Optional, Dict, Any, Tuple, List, Union
 from contextlib import contextmanager
 
@@ -2384,6 +2385,11 @@ class LLMHandler:
         
         # Load to GPU
         logger.info(f"Loading LLM to {self.device}")
+
+        # Explicitly release memory before loading to GPU
+        gc.collect()
+        torch.cuda.empty_cache()
+
         start_time = time.time()
         if hasattr(self.llm, "to"):
             self.llm.to(self.device).to(self.dtype)
@@ -2395,10 +2401,19 @@ class LLMHandler:
         finally:
             # Offload to CPU
             logger.info(f"Offloading LLM to CPU")
+
+            # Explicitly release memory before offloading to CPU
+            gc.collect()
+            torch.cuda.empty_cache()
+
             start_time = time.time()
             if hasattr(self.llm, "to"):
                 self.llm.to("cpu")
+
+            # Explicitly release memory after offloading to CPU
+            gc.collect()
             torch.cuda.empty_cache()
+
             offload_time = time.time() - start_time
             logger.info(f"Offloaded LLM to CPU in {offload_time:.4f}s")
     
