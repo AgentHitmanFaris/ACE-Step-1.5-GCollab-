@@ -13,6 +13,7 @@ import tempfile
 import traceback
 import re
 import random
+import gc
 import uuid
 import hashlib
 import json
@@ -677,6 +678,11 @@ class AceStepHandler:
 
         # Load to GPU
         logger.info(f"[_load_model_context] Loading {model_name} to {self.device}")
+
+        # Explicitly release memory before loading to GPU
+        gc.collect()
+        torch.cuda.empty_cache()
+
         start_time = time.time()
         if model_name == "vae":
             vae_dtype = self._get_vae_dtype()
@@ -696,6 +702,11 @@ class AceStepHandler:
         finally:
             # Offload to CPU
             logger.info(f"[_load_model_context] Offloading {model_name} to CPU")
+
+            # Explicitly release memory before offloading to CPU
+            gc.collect()
+            torch.cuda.empty_cache()
+
             start_time = time.time()
             self._recursive_to_device(model, "cpu")
             
@@ -703,7 +714,10 @@ class AceStepHandler:
             # silence_latent is used in many places outside of model context,
             # so it should stay on GPU to avoid device mismatch errors.
             
+            # Explicitly release memory after offloading to CPU
+            gc.collect()
             torch.cuda.empty_cache()
+
             offload_time = time.time() - start_time
             self.current_offload_cost += offload_time
             logger.info(f"[_load_model_context] Offloaded {model_name} to CPU in {offload_time:.4f}s")
