@@ -2028,6 +2028,7 @@ class LLMHandler:
                 return "", f"❌ Error generating from formatted prompt: {e}"
             else:
                 # Re-raise critical exceptions like KeyboardInterrupt
+                logger.warning(f"Generation interrupted by {type(e).__name__} (likely user interrupt or system signal).")
                 raise e
     
     def _generate_with_constrained_decoding(
