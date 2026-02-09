@@ -368,7 +368,7 @@ def main():
                     import time
                     time.sleep(1)
             except KeyboardInterrupt:
-                print("\nShutting down...")
+                print("\n[INFO] Interrupted by user or system (e.g. runtime overload/timeout). Shutting down...")
         else:
             demo.launch(
                 server_name=args.server_name,
