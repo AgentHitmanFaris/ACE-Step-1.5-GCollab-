@@ -3,6 +3,7 @@ Business Logic Handler
 Encapsulates all data processing and business logic as a bridge between model and UI
 """
 import os
+import gc
 
 # Disable tokenizers parallelism to avoid fork warning
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -680,6 +681,7 @@ class AceStepHandler:
         logger.info(f"[_load_model_context] Loading {model_name} to {self.device}")
 
         # Explicitly release memory before loading to GPU
+        # Clear memory before loading to maximize available VRAM
         gc.collect()
         torch.cuda.empty_cache()
 
