@@ -441,9 +441,7 @@ class LLMHandler:
             # Check for Ampere GPU (Compute Capability >= 8.0) for FlashAttention
             major, minor = torch.cuda.get_device_capability(current_device)
             if major < 8:
-                self.llm_initialized = False
-                logger.warning(f"GPU {device_name} (Capability {major}.{minor}) does not support FlashAttention (requires Ampere or newer).")
-                return f"❌ FlashAttention only supports Ampere GPUs or newer. Current GPU: {device_name} (Capability {major}.{minor})"
+                logger.warning(f"GPU {device_name} (Capability {major}.{minor}) does not support FlashAttention (requires Ampere or newer). attempting to fallback to xFormers/SDPA.")
 
             torch.cuda.empty_cache()
             
