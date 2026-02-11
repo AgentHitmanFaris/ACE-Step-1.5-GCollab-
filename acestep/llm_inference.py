@@ -55,6 +55,18 @@ class LLMHandler:
         # Shared HuggingFace model for perplexity calculation
         self._hf_model_for_scoring = None
 
+    def _safe_empty_cache(self):
+        """Safely clear CUDA cache, handling potential RuntimeError due to active CUDA graph capture."""
+        if torch.cuda.is_available():
+            try:
+                torch.cuda.empty_cache()
+            except RuntimeError as e:
+                # Catch "captures_underway.empty() INTERNAL ASSERT FAILED" error
+                if "captures_underway" in str(e) or "internal assert" in str(e).lower():
+                    logger.warning(f"Skipping torch.cuda.empty_cache() due to active CUDA graph capture: {e}")
+                else:
+                    raise e
+
     def _get_checkpoint_dir(self) -> str:
         """Get checkpoint directory, prioritizing persistent storage"""
         if self.persistent_storage_path:
@@ -443,7 +455,7 @@ class LLMHandler:
             if major < 8:
                 logger.warning(f"GPU {device_name} (Capability {major}.{minor}) does not support FlashAttention (requires Ampere or newer). attempting to fallback to xFormers/SDPA.")
 
-            torch.cuda.empty_cache()
+            self._safe_empty_cache()
             
             # Use adaptive GPU memory utilization based on model size
             gpu_memory_utilization, low_gpu_memory_mode = self.get_gpu_memory_utilization(
@@ -2026,7 +2038,7 @@ class LLMHandler:
                     pass  # Ignore errors during cleanup
             # Clear CUDA cache to release any corrupted memory
             if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+                self._safe_empty_cache()
                 torch.cuda.synchronize()
 
             if isinstance(e, Exception):
@@ -2394,7 +2406,7 @@ class LLMHandler:
 
         # Explicitly release memory before loading to GPU
         gc.collect()
-        torch.cuda.empty_cache()
+        self._safe_empty_cache()
 
         start_time = time.time()
         if hasattr(self.llm, "to"):
@@ -2410,7 +2422,7 @@ class LLMHandler:
 
             # Explicitly release memory before offloading to CPU
             gc.collect()
-            torch.cuda.empty_cache()
+            self._safe_empty_cache()
 
             start_time = time.time()
             if hasattr(self.llm, "to"):
@@ -2418,7 +2430,7 @@ class LLMHandler:
 
             # Explicitly release memory after offloading to CPU
             gc.collect()
-            torch.cuda.empty_cache()
+            self._safe_empty_cache()
 
             offload_time = time.time() - start_time
             logger.info(f"Offloaded LLM to CPU in {offload_time:.4f}s")

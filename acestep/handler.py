@@ -91,6 +91,18 @@ class AceStepHandler:
         self.lora_scale = 1.0  # LoRA influence scale (0-1)
         self._base_decoder = None  # Backup of original decoder
     
+    def _safe_empty_cache(self):
+        """Safely clear CUDA cache, handling potential RuntimeError due to active CUDA graph capture."""
+        if torch.cuda.is_available():
+            try:
+                torch.cuda.empty_cache()
+            except RuntimeError as e:
+                # Catch "captures_underway.empty() INTERNAL ASSERT FAILED" error
+                if "captures_underway" in str(e) or "internal assert" in str(e).lower():
+                    logger.warning(f"Skipping torch.cuda.empty_cache() due to active CUDA graph capture: {e}")
+                else:
+                    raise e
+
     def get_available_checkpoints(self) -> str:
         """Return project root directory path"""
         # Get project root (handler.py is in acestep/, so go up two levels to project root)
@@ -683,7 +695,7 @@ class AceStepHandler:
         # Explicitly release memory before loading to GPU
         # Clear memory before loading to maximize available VRAM
         gc.collect()
-        torch.cuda.empty_cache()
+        self._safe_empty_cache()
 
         start_time = time.time()
         if model_name == "vae":
@@ -707,7 +719,7 @@ class AceStepHandler:
 
             # Explicitly release memory before offloading to CPU
             gc.collect()
-            torch.cuda.empty_cache()
+            self._safe_empty_cache()
 
             start_time = time.time()
             self._recursive_to_device(model, "cpu")
@@ -718,7 +730,7 @@ class AceStepHandler:
             
             # Explicitly release memory after offloading to CPU
             gc.collect()
-            torch.cuda.empty_cache()
+            self._safe_empty_cache()
 
             offload_time = time.time() - start_time
             self.current_offload_cost += offload_time
@@ -2914,7 +2926,7 @@ class AceStepHandler:
                     
                     # Release original pred_latents to free VRAM before VAE decode
                     del pred_latents
-                    torch.cuda.empty_cache()
+                    self._safe_empty_cache()
                     
                     logger.debug(f"[generate_music] Before VAE decode: allocated={torch.cuda.memory_allocated()/1024**3:.2f}GB, max={torch.cuda.max_memory_allocated()/1024**3:.2f}GB")
                     
@@ -2935,7 +2947,7 @@ class AceStepHandler:
                     if pred_wavs.dtype != torch.float32:
                         pred_wavs = pred_wavs.float()
                     
-                    torch.cuda.empty_cache()
+                    self._safe_empty_cache()
             end_time = time.time()
             time_costs["vae_decode_time_cost"] = end_time - start_time
             time_costs["total_time_cost"] = time_costs["total_time_cost"] + time_costs["vae_decode_time_cost"]
