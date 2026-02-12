@@ -2,6 +2,7 @@
 Gradio API Routes Module
 Add API endpoints compatible with api_server.py and CustomAceStep to Gradio application
 """
+import asyncio
 import json
 import os
 import random
@@ -256,9 +257,12 @@ async def query_result(request: Request, authorization: Optional[str] = Header(N
         except Exception:
             task_ids = []
 
+    loop = asyncio.get_event_loop()
+    tasks = [loop.run_in_executor(None, get_result, task_id) for task_id in task_ids]
+    raw_results = await asyncio.gather(*tasks)
+
     results = []
-    for task_id in task_ids:
-        data = get_result(task_id)
+    for task_id, data in zip(task_ids, raw_results):
         if data and data.get("status") == "succeeded":
             results.append({
                 "task_id": task_id,
@@ -299,12 +303,16 @@ async def format_input(request: Request, authorization: Optional[str] = Header(N
     from acestep.inference import format_sample
 
     try:
-        result = format_sample(
-            llm_handler=llm_handler,
-            caption=caption,
-            lyrics=lyrics,
-            temperature=temperature,
-            use_constrained_decoding=True,
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            lambda: format_sample(
+                llm_handler=llm_handler,
+                caption=caption,
+                lyrics=lyrics,
+                temperature=temperature,
+                use_constrained_decoding=True,
+            )
         )
 
         if not result.success:
@@ -371,6 +379,7 @@ async def release_task(request: Request, authorization: Optional[str] = Header(N
         return bool(val)
 
     try:
+        loop = asyncio.get_event_loop()
         # Get sample_mode and sample_query parameters
         sample_mode = to_bool(get_param("sample_mode", "sampleMode"), False)
         sample_query = get_param("sample_query", "sampleQuery", "description", "desc", default="") or ""
@@ -389,11 +398,14 @@ async def release_task(request: Request, authorization: Optional[str] = Header(N
                 raise HTTPException(status_code=500, detail="sample_mode requires LLM to be initialized")
 
             query = sample_query if has_sample_query else "NO USER INPUT"
-            sample_result = create_sample(
-                llm_handler=llm_handler,
-                query=query,
-                vocal_language=vocal_language if vocal_language not in ("en", "unknown", "") else None,
-                temperature=lm_temperature,
+            sample_result = await loop.run_in_executor(
+                None,
+                lambda: create_sample(
+                    llm_handler=llm_handler,
+                    query=query,
+                    vocal_language=vocal_language if vocal_language not in ("en", "unknown", "") else None,
+                    temperature=lm_temperature,
+                )
             )
 
             if not sample_result.success:
@@ -418,11 +430,14 @@ async def release_task(request: Request, authorization: Optional[str] = Header(N
         # Process use_format: enhance caption/lyrics via LLM
         if use_format and not sample_mode and not has_sample_query:
             if llm_handler and llm_handler.llm_initialized:
-                format_result = format_sample(
-                    llm_handler=llm_handler,
-                    caption=caption,
-                    lyrics=lyrics,
-                    temperature=lm_temperature,
+                format_result = await loop.run_in_executor(
+                    None,
+                    lambda: format_sample(
+                        llm_handler=llm_handler,
+                        caption=caption,
+                        lyrics=lyrics,
+                        temperature=lm_temperature,
+                    )
                 )
                 if format_result.success:
                     caption = format_result.caption or caption
@@ -468,12 +483,14 @@ async def release_task(request: Request, authorization: Optional[str] = Header(N
         save_dir = tempfile.gettempdir()
 
         # Call generation function
-        result = generate_music(
-            dit_handler=dit_handler,
-            llm_handler=llm_handler if llm_handler and llm_handler.llm_initialized else None,
-            params=params,
-            config=config,
-            save_dir=save_dir,
+        result = await loop.run_in_executor(
+            None,
+            generate_music,
+            dit_handler,
+            llm_handler if llm_handler and llm_handler.llm_initialized else None,
+            params,
+            config,
+            save_dir,
         )
 
         if not result.success:
@@ -492,7 +509,7 @@ async def release_task(request: Request, authorization: Optional[str] = Header(N
         } for p in audio_paths]
 
         # Store result
-        store_result(task_id, result_data)
+        await loop.run_in_executor(None, store_result, task_id, result_data)
 
         return _wrap_response({"task_id": task_id, "status": "succeeded"})
 
