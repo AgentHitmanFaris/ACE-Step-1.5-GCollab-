@@ -1,4 +1,5 @@
 import atexit
+import re
 from dataclasses import fields
 from time import perf_counter
 from tqdm.auto import tqdm
@@ -51,12 +52,22 @@ class LLMEngine:
             if unconditional_prompt is None:
                 # Try to construct unconditional prompt by replacing user input with "NO USER INPUT"
                 # This is a fallback - ideally users should provide unconditional_prompt
-                if isinstance(prompt, list):
-                    # For now, just use the same prompt (user should provide unconditional_prompt)
-                    # TODO: Implement automatic "NO USER INPUT" replacement if possible
-                    unconditional_prompt = prompt
-                else:
-                    unconditional_prompt = prompt
+                prompt_str = self.tokenizer.decode(prompt)
+
+                # Try to replace user input in various common chat templates
+                # ChatML format (<|im_start|>user\nCONTENT<|im_end|>)
+                if "<|im_start|>user" in prompt_str:
+                    unconditional_prompt = re.sub(r'(<\|im_start\|>user\n).*?(<\|im_end\|>)', r'\1NO USER INPUT\2', prompt_str, flags=re.DOTALL)
+                # Llama-2/3 [INST] CONTENT [/INST] or similar
+                elif "[INST]" in prompt_str:
+                    unconditional_prompt = re.sub(r'(\[INST\]\s*).*?(\s*\[/INST\])', r'\1NO USER INPUT\2', prompt_str, flags=re.DOTALL)
+                # Llama-3 (<|start_header_id|>user<|end_header_id|>\n\nCONTENT<|eot_id|>)
+                elif "<|start_header_id|>user" in prompt_str:
+                    unconditional_prompt = re.sub(r'(<\|start_header_id\|>user<\|end_header_id\|>\n\n).*?(<\|eot_id\|>)', r'\1NO USER INPUT\2', prompt_str, flags=re.DOTALL)
+
+                # If no pattern matched (unconditional_prompt is still None or equals prompt_str)
+                if unconditional_prompt is None or unconditional_prompt == prompt_str:
+                    unconditional_prompt = "NO USER INPUT"
             if isinstance(unconditional_prompt, str):
                 unconditional_prompt = self.tokenizer.encode(unconditional_prompt)
             # Create unconditional sequence first (so we can reference it from conditional)
